@@ -164,10 +164,11 @@
 </head>
 <body>
 
-    <div id="sidebar">
-        <h2>🐍 Python Hybrid Lab</h2>
-        <div class="nav-item active" onclick="loadPage('home')">🏠 เริ่มต้นใช้งาน</div>
-        <div class="nav-item" onclick="loadPage(0)">1. Print & Input</div>
+<div id="sidebar">
+    <h2>🐍 Python Hybrid Lab</h2>
+    <div class="nav-item active" onclick="loadPage('home')">🏠 เริ่มต้นใช้งาน</div>
+    <div class="nav-item" onclick="loadPage(0)">1. Print & Input</div>
+    <div class="nav-item" style="background: #27ae60; margin-top: auto;" onclick="loadPage('dashboard')">📊 เช็คสถานะการส่งงาน</div>
         <div class="nav-item" onclick="loadPage(1)">2. String & Numbers</div>
         <div class="nav-item" onclick="loadPage(2)">3. If-Else (Logic)</div>
         <div class="nav-item" onclick="loadPage(3)">4. Loops (ทำซ้ำ)</div>
@@ -175,6 +176,26 @@
         <div class="nav-item" onclick="loadPage(5)">6. Class (OOP)</div>
         <div class="nav-item" onclick="loadPage(6)">7. Pygame Intro</div>
     </div>
+
+    <div id="dashboard-section" style="display:none; padding:20px;">
+    <h2 style="color: var(--sidebar-bg);">📊 ตารางเช็คสถานะการส่งงาน</h2>
+    <p>ค้นหาชื่อของคุณเพื่อตรวจสอบสถานะการส่งงานบทที่ 1</p>
+    
+    <input type="text" id="search-name" onkeyup="filterTable()" placeholder="พิมพ์ชื่อเพื่อค้นหา..." 
+           style="padding:10px; width:100%; max-width:400px; border-radius:8px; border:1px solid #ccc; margin-bottom:20px;">
+
+    <table id="score-table" style="width:100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <thead>
+            <tr style="background: var(--sidebar-bg); color: white; text-align: left;">
+                <th style="padding: 15px;">ชื่อ-นามสกุล</th>
+                <th style="padding: 15px;">สถานะ</th>
+                <th style="padding: 15px;">คะแนน</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            </tbody>
+    </table>
+</div>
 
     <div id="content">
         <div class="card" id="lesson-card">
@@ -279,6 +300,26 @@
                 10. <b>Final Summary:</b> พิมพ์สรุปข้อมูลทั้งหมดโดยใช้ f-string ให้สวยงาม
             </div>
         </div>
+    <div style="margin-top:30px; background:#fffbe6; padding:20px; border-radius:15px; border:1px solid #ffe58f;">
+            <h3 style="color:#856404; margin-top:0;">💡 คำถามที่พบบ่อย (FAQ)</h3>
+            <p><b>1. ทำไมคำนวณตัวเลขจาก input() แล้วผลลัพธ์ผิดพลาด?</b></p>
+            <video width="100%" controls style="border-radius:10px; border:2px solid #ddd;">
+                <source src="0114(1).mp4" type="video/mp4">
+            </video>
+            <p style="font-size: 0.9rem; color: #666; line-height: 1.5;">
+                <b>สรุปจากคลิป:</b> ค่าที่ได้จาก <code>input()</code> จะเป็น <b>String</b> เสมอ <br>
+                - ต้องเก็บลงตัวแปร เช่น <code>amount = input(...)</code> <br>
+                - และต้องใช้ <code>int()</code> ครอบเพื่อแปลงเป็นตัวเลขก่อนคำนวณ
+            </p>
+        </div>
+
+        <div style="margin-top:20px; padding:20px; background:#f0f7ff; border-radius:15px; border:1px solid #3498db;">
+            <h3 style="color:#2980b9; margin-top:0;">🤖 AI Code Assistant (ถาม-ตอบ Error)</h3>
+            <p style="font-size:0.85rem; color:#555;">*AI จะช่วยใบ้บรรทัดที่ผิดและวิธีแก้ แต่จะไม่เขียนโค้ดทั้งหมดให้เด็ดขาด</p>
+            <textarea id="ai-input" placeholder="วาง Error หรือคำถามที่สงสัยที่นี่..." style="width:100%; height:80px; padding:10px; border-radius:8px; border:1px solid #ccc;"></textarea>
+            <button onclick="askAITutor()" style="margin-top:10px; background:#3498db; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; width:100%;">ขอคำแนะนำจาก AI</button>
+            <div id="ai-output" style="margin-top:15px; background:white; padding:15px; border-radius:8px; display:none; border-left:4px solid #3498db;"></div>
+        </div>
         <div class="submit-area" style="margin-top: 30px; padding: 20px; background: #fff3f3; border-radius: 12px; border: 2px solid #c0392b; text-align: center;">
     <h3 style="color:#c0392b;">🚩 พร้อมส่งงานหรือยัง?</h3>
     <p>เมื่อนักเรียนเขียนโค้ดครบ 10 ข้อใน VS Code แล้ว ให้กดปุ่มด้านล่างเพื่อส่งงานผ่าน Google Form ครับ</p>
@@ -329,52 +370,79 @@
             }
         ];
 
-        function loadPage(page) {
-            // อัปเดต Sidebar UI
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            const card = document.getElementById('lesson-card');
-            
-            if (page === 'home') {
-                document.querySelector('.nav-item').classList.add('active');
-                card.innerHTML = `
-                    <div class="lesson-header">
-                        <h1>🚀 เริ่มต้นเส้นทาง Python Master</h1>
-                        <p>เราจะเรียนแบบ <b>Hybrid</b>: อ่านโจทย์ที่นี่ และรันโค้ดในโปรแกรม <b>VS Code</b> ในเครื่องของคุณ</p>
-                        
-                        <div class="setup-grid">
-                            <div class="step-box"><span class="step-num">1</span><br><b>ลง Python</b><br><a href="https://www.python.org/downloads/" target="_blank">Download</a></div>
-                            <div class="step-box"><span class="step-num">2</span><br><b>ลง VS Code</b><br><a href="https://code.visualstudio.com/" target="_blank">Download</a></div>
-                            <div class="step-box"><span class="step-num">3</span><br><b>ลง Extension</b><br>ค้นหา "Python" ใน VS Code</div>
-                        </div>
-
-                        <h3>📝 วิธีการเรียน:</h3>
-                        <ol>
-                            <li>เลือกบทเรียนจากแถบด้านซ้าย</li>
-                            <li>กดปุ่ม <b>Copy</b> เพื่อนำโค้ดไปวางใน VS Code</li>
-                            <li>สร้างไฟล์ใหม่ใน VS Code ชื่อ <code>work.py</code> แล้วรันดูผล</li>
-                            <li>แก้ไขโค้ดตามโจทย์ แล้วกดปุ่ม <b>"ส่งงาน"</b> ท้ายบทเรียน</li>
-                        </ol>
-                    </div>
-                `;
-            } else {
-                const lesson = lessons[page];
-// แก้ไขบรรทัดนี้ในฟังก์ชัน loadPage
-card.innerHTML = `
-    <div class="lesson-header">
-        <h1>${lesson.title}</h1>
-        <div style="margin-bottom:20px;">${lesson.desc}</div> </div>
+function loadPage(page) {
+    // 1. อัปเดต Sidebar UI: ลบ class active ออกจากทุกปุ่ม
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     
-    <div class="code-container">
-        <h3 style="color:#2c3e50;">🚀 ทดลองเขียนโค้ดใน VS Code:</h3>
-        <button class="copy-btn" onclick="copyCode()">Copy</button>
-        <pre id="code-block"><code>${lesson.code}</code></pre>
-    </div>
+    // 2. อ้างอิง Element ต่างๆ
+    const card = document.getElementById('lesson-card');
+    const dashboard = document.getElementById('dashboard-section');
 
-    <div style="margin-bottom:20px;">${lesson.problem}</div>
-    ...
-`;
-            }
+    // 3. ตรวจสอบเงื่อนไขหน้าจอ
+    if (page === 'home') {
+        // --- แสดงหน้าแรก ---
+        card.style.display = 'block';
+        dashboard.style.display = 'none';
+        document.querySelector('.nav-item').classList.add('active'); // ไฮไลท์ปุ่มแรก
+        
+        card.innerHTML = `
+            <div class="lesson-header">
+                <h1>🚀 เริ่มต้นเส้นทาง Python Master</h1>
+                <p>เราจะเรียนแบบ <b>Hybrid</b>: อ่านโจทย์ที่นี่ และรันโค้ดในโปรแกรม <b>VS Code</b> ในเครื่องของคุณ</p>
+                <div class="setup-grid">
+                    <div class="step-box"><span class="step-num">1</span><br><b>ลง Python</b><br><a href="https://www.python.org/downloads/" target="_blank">Download</a></div>
+                    <div class="step-box"><span class="step-num">2</span><br><b>ลง VS Code</b><br><a href="https://code.visualstudio.com/" target="_blank">Download</a></div>
+                    <div class="step-box"><span class="step-num">3</span><br><b>ลง Extension</b><br>ค้นหา "Python" ใน VS Code</div>
+                </div>
+                <h3>📝 วิธีการเรียน:</h3>
+                <ol>
+                    <li>เลือกบทเรียนจากแถบด้านซ้าย</li>
+                    <li>กดปุ่ม <b>Copy</b> เพื่อนำโค้ดไปวางใน VS Code</li>
+                    <li>สร้างไฟล์ใหม่ใน VS Code ชื่อ <code>work.py</code> แล้วรันดูผล</li>
+                    <li>แก้ไขโค้ดตามโจทย์ แล้วกดปุ่ม <b>"ส่งงาน"</b> ท้ายบทเรียน</li>
+                </ol>
+            </div>
+        `;
+    } 
+    else if (page === 'dashboard') {
+        // --- แสดงหน้า Dashboard (เช็คคะแนน) ---
+        card.style.display = 'none';
+        dashboard.style.display = 'block';
+        
+        // เรียกฟังก์ชันดึงข้อมูลจาก Google Sheets (ถ้าคุณเขียนไว้แล้ว)
+        if (typeof loadDashboard === "function") {
+            loadDashboard();
         }
+    } 
+    else {
+        // --- แสดงหน้าบทเรียน (Lesson) ---
+        const lesson = lessons[page];
+        
+        // ป้องกัน Error กรณีหาบทเรียนไม่เจอ
+        if (!lesson) {
+            console.error("ไม่พบข้อมูลบทเรียนที่:", page);
+            return;
+        }
+
+        card.style.display = 'block';
+        dashboard.style.display = 'none';
+        
+        card.innerHTML = `
+            <div class="lesson-header">
+                <h1>${lesson.title}</h1>
+                <div style="margin-bottom:20px;">${lesson.desc}</div> 
+            </div>
+            
+            <div class="code-container">
+                <h3 style="color:#2c3e50;">🚀 ทดลองเขียนโค้ดใน VS Code:</h3>
+                <button class="copy-btn" onclick="copyCode()">Copy</button>
+                <pre id="code-block"><code>${lesson.code}</code></pre>
+            </div>
+
+            <div style="margin-top:20px;">${lesson.problem || ""}</div>
+        `;
+    }
+}
 
         function copyCode() {
             const code = document.querySelector('pre code').innerText;
@@ -428,6 +496,28 @@ card.innerHTML = `
         console.error("ไม่พบไฟล์เสียงสำหรับบทเรียนที่ " + lessonNumber);
     }
 }
+
+function askAITutor() {
+    const input = document.getElementById('ai-input').value;
+    const output = document.getElementById('ai-output');
+    
+    if (!input) return alert("กรุณาใส่คำถามหรือ Error ก่อนครับ");
+
+    output.style.display = "block";
+    output.innerText = "🤖 AI กำลังวิเคราะห์... (ในขั้นตอนนี้ คุณครูต้องเชื่อมต่อกับ API Key ของตนเอง หรือใช้การจำลองคำตอบเบื้องต้น)";
+
+    // คำแนะนำ: ส่วนนี้คือ Logic การตอบของ AI ที่คุณต้องการ
+    // คุณครูสามารถใช้ System Prompt: "ห้ามเฉลยโค้ดทั้งหมด ให้บอกจุดที่ผิดและใบ้บรรทัดให้เด็กคิดเอง"
+    
+    // ตัวอย่างการจำลองคำตอบ (Simulation)
+    setTimeout(() => {
+        if (input.toLowerCase().includes("input")) {
+            output.innerText = "🤖 คำแนะนำ: ดูเหมือนเธอจะลืมแปลงร่างข้อมูลนะ! ลองตรวจดูว่าได้ใส่ int() ครอบ input() หรือยัง? ลองแก้ที่บรรทัดที่รับตัวเลขดูนะ";
+        } else {
+            output.innerText = "🤖 คำแนะนำ: ลองตรวจสอบเครื่องหมาย ( ) หรือ " + '" ' + " ว่าใส่ครบคู่หรือเปล่า? ลองไล่ดูทีละบรรทัดนะ ครูเชื่อว่าเธอทำได้!";
+        }
+    }, 1500);
+}                            
 function submitToForm(lessonIdx) {
     const studentName = document.getElementById('name-field').value;
     if (!studentName) {
@@ -446,6 +536,55 @@ function submitToForm(lessonIdx) {
     let finalUrl = `${baseUrl}?${nameEntry}=${encodeURIComponent(studentName)}&${lessonEntry}=${encodeURIComponent(lessonTitle)}`;
     
     window.open(finalUrl, '_blank');
+}
+const sheetCSVUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://docs.google.com/spreadsheets/d/e/2PACX-1vRBg3tOw-LxclnY4blbD4_1gBBkRlVqsVy-gURdKGoCNhkWNGOelSnYZqoIhu_EgtP3MrhMP42fT9Q9/pub?gid=1800783760&single=true&output=csv');
+
+async function loadDashboard() {
+    // ซ่อนหน้าบทเรียน แสดงหน้า Dashboard
+    document.getElementById('lesson-card').style.display = 'none';
+    document.getElementById('dashboard-section').style.display = 'block';
+
+    try {
+        const response = await fetch(sheetCSVUrl);
+        const data = await response.text();
+        const rows = data.split('\n').slice(1); // ตัดหัวตารางออก
+        
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
+
+        rows.forEach(row => {
+            const cols = row.split(',');
+            if (cols.length >= 2) {
+                const statusColor = cols[1].trim() === 'ผ่านแล้ว' ? '#2ecc71' : '#f1c40f';
+                tableBody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 12px 15px;">${cols[0]}</td>
+                        <td style="padding: 12px 15px;">
+                            <span style="background:${statusColor}; color:white; padding:4px 10px; border-radius:20px; font-size:12px;">
+                                ${cols[1]}
+                            </span>
+                        </td>
+                        <td style="padding: 12px 15px;">${cols[2] || '0'}</td>
+                    </tr>
+                `;
+            }
+        });
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+// ฟังก์ชันค้นหาชื่อ
+function filterTable() {
+    const input = document.getElementById('search-name').value.toUpperCase();
+    const rows = document.getElementById('table-body').getElementsByTagName('tr');
+    for (let i = 0; i < rows.length; i++) {
+        const nameCol = rows[i].getElementsByTagName('td')[0];
+        if (nameCol) {
+            const textValue = nameCol.textContent || nameCol.innerText;
+            rows[i].style.display = textValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+        }
+    }
 }
     </script>
 </body>
